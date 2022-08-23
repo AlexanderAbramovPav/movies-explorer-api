@@ -11,45 +11,16 @@ const ConflictError = require('../errors/conflict-err');
 
 const DUPLICATE_ERROR_CODE = 11000;
 
-// GET /users — возвращает всех пользователей
-module.exports.getUsers = async (req, res, next) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (err) {
-    next(err);
-  }
-};
-
-// GET /users/:userId - возвращает пользователя по _id
-module.exports.getUserById = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      throw new NotFoundError('Пользователь по указанному id не найден');
-    }
-    res.send(user);
-  } catch (err) {
-    if (err.name === 'CastError') {
-      next(new BadRequestError('Переданы некорректные данные при поиске'));
-    } else {
-      next(err);
-    }
-  }
-};
-
-// POST /users — создаёт пользователя
+// POST /signup
 module.exports.createUser = (req, res, next) => {
   const {
-    email, password, name, about, avatar,
+    email, password, name,
   } = req.body;
   return bcrypt.hash(password, 10)
     .then((hash) => User.create({
       email,
       password: hash,
       name,
-      about,
-      avatar,
     }))
     .then((user) => {
       res.send({ message: 'Регистрация прошла успешно!', _id: user._id, email: user.email });
@@ -65,12 +36,31 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-// PATCH /users/me — обновляет профиль
+// POST /signin
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
+      return res
+        .cookie('jwt', token, {
+          maxAge: 3600000,
+          httpOnly: true,
+        })
+        .send({ message: 'Авторизация прошла успешно!' });
+    })
+    .catch(() => {
+      next(new UnauthorizedError('Ошибка аутентификации'));
+    });
+};
+
+// PATCH /users/me
 module.exports.updateUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { name: req.body.name, about: req.body.about },
+      { name: req.body.name },
       {
         new: true,
         runValidators: true,
@@ -90,7 +80,7 @@ module.exports.updateUser = async (req, res, next) => {
   }
 };
 
-// GET /users/me - возвращает информацию о текущем пользователе
+// GET /users/me
 module.exports.getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id);
@@ -100,46 +90,16 @@ module.exports.getUser = async (req, res, next) => {
   }
 };
 
-// PATCH /users/me/avatar — обновляет аватар
-exports.updateAvatar = async (req, res, next) => {
+// POST /logout
+module.exports.logout = async (req, res, next) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { avatar: req.body.avatar },
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
-    if (user) {
-      res.send(user);
-    } else {
-      throw new NotFoundError('Пользователь по указанному id не найден');
-    }
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при обновлении аватара'));
-    } else {
-      next(err);
-    }
-  }
-};
-
-// Логин пользователя
-module.exports.login = (req, res, next) => {
-  const { email, password } = req.body;
-
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key', { expiresIn: '7d' });
-      return res
-        .cookie('jwt', token, {
-          maxAge: 3600000,
-          httpOnly: true,
-        })
-        .send({ message: 'Авторизация прошла успешно!' });
+    const token = req.cookies.jwt;
+    res.cookie('jwt', token, {
+      maxAge: 1,
+      httpOnly: true,
     })
-    .catch(() => {
-      next(new UnauthorizedError('Ошибка аутентификации'));
-    });
+      .send({ message: 'Выход прошёл успешно!' });
+  } catch (err) {
+    next(err);
+  }
 };
