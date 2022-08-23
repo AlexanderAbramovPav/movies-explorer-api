@@ -5,65 +5,65 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const { celebrate, Joi } = require('celebrate');
-const cors = require('cors');
+// const cors = require('cors');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const NotFoundError = require('./errors/not-found-err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const regWebUrl = /https?:\/\/(www\.)?[-a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,256}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/;
-
+// Initialise port
 const { PORT = 3000 } = process.env;
-const app = express();
-app.use(cors({
-  origin: [
-    'https://alexander.abramov.nomoredomains.sbs',
-    'http://alexander.abramov.nomoredomains.sbs',
-  ],
-  credentials: true,
-  methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Authorization', 'Content-type'],
-}));
 
+// Initialise app
+const app = express();
+
+// CORS config
+// app.use(cors({
+//   origin: [
+//     'https://alexander.abramov.nomoredomains.sbs',
+//     'http://alexander.abramov.nomoredomains.sbs',
+//   ],
+//   credentials: true,
+//   methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
+//   allowedHeaders: ['Authorization', 'Content-type'],
+// }));
+
+// Initailise Parsers
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// подключаемся к серверу mongo
-mongoose.connect('mongodb://localhost:27017/mestodb', {
+// MongoDB connect
+mongoose.connect('mongodb://localhost:27017/movies', {
   useNewUrlParser: true,
 }, (err) => {
   if (err) throw err;
 });
 
-app.use(requestLogger); // подключаем логгер запросов
+// request Logger
+app.use(requestLogger);
 
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
-
-// роуты, не требующие авторизации
+// SignIn route
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 }), login);
+
+// SignUp route
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(regWebUrl),
+    name: Joi.string().required().min(2).max(30),
   }),
 }), createUser);
 
-// авторизация
+// auth middleware
 app.use(auth);
 
+// Logout
 app.post('/logout', (req, res) => {
   const token = req.cookies.jwt;
   res.cookie('jwt', token, {
@@ -73,36 +73,31 @@ app.post('/logout', (req, res) => {
     .send({ message: 'Выход прошёл успешно!' });
 });
 
-// роуты, которым авторизация нужна
+// Main routes
 app.use('/users', require('./routes/users'));
+app.use('/movies', require('./routes/movies'));
 
-app.use('/cards', require('./routes/cards'));
-
-// роут 404
+// 404 route
 app.use('/*', (req, res, next) => {
   next(new NotFoundError('Запрос сделан к несуществующей странице'));
 });
 
-app.use(errorLogger); // подключаем логгер ошибок
-
+// Error Logger
+app.use(errorLogger);
 app.use(errors());
 
+// Common 500
 app.use((err, req, res, next) => {
-  // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
-
   res
     .status(statusCode)
     .send({
-      // проверяем статус и выставляем сообщение в зависимости от него
       message: statusCode === 500
         ? 'На сервере произошла ошибка'
         : message,
     });
-
   next();
 });
 
-app.listen(PORT, () => {
-  console.log(`App listening on port ${PORT}`);
-});
+// Listen port
+app.listen(PORT);
