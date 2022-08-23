@@ -13,10 +13,10 @@ const {
   updateUser, getUser, login, createUser, logout,
 } = require('../controllers/users');
 
+Router.post('/signup', express.json(), validateSignUp, createUser);
+Router.post('/signin', express.json(), validateLogin, login);
 Router.get('/users/me', auth, getUser);
 Router.patch('/users/me', auth, express.json(), validateUpdate, updateUser);
-Router.post('/signin', express.json(), validateLogin, login);
-Router.post('/signup', express.json(), validateSignUp, createUser);
 Router.post('/logout', auth, logout);
 
 Router.get('/movies/', auth, getMovies);
