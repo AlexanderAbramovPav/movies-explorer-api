@@ -11,7 +11,7 @@ const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 const errorHandler = require('./middlewares/error-handler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const Routes = require('./routes/index');
+const Router = require('./routes/index');
 
 // Initialise port
 const { PORT = 3000 } = process.env;
@@ -44,7 +44,7 @@ mongoose.connect('mongodb://localhost:27017/movies', {
 app.use(requestLogger);
 
 // Main routes
-app.use(Routes);
+app.use(Router);
 
 // 404 route
 app.use('/*', auth, (req, res, next) => {
