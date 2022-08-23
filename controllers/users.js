@@ -89,3 +89,17 @@ module.exports.getUser = async (req, res, next) => {
     next(err);
   }
 };
+
+// POST /logout
+module.exports.logout = async (req, res, next) => {
+  try {
+    const token = req.cookies.jwt;
+    res.cookie('jwt', token, {
+      maxAge: 1,
+      httpOnly: true,
+    })
+      .send({ message: 'Выход прошёл успешно!' });
+  } catch (err) {
+    next(err);
+  }
+};

@@ -1,16 +1,19 @@
-const router = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
-
+const userRoutes = require('express').Router();
+const express = require('express');
 const {
-  updateUser, getUser,
+  validateUpdate,
+  validateLogin,
+  validateSignUp,
+} = require('../middlewares/validation');
+const auth = require('../middlewares/auth');
+const {
+  updateUser, getUser, login, createUser, logout,
 } = require('../controllers/users');
 
-router.get('/me', getUser);
+userRoutes.get('/users/me', auth, getUser);
+userRoutes.patch('/users/me', auth, express.json(), validateUpdate, updateUser);
+userRoutes.post('/signin', express.json(), validateLogin, login);
+userRoutes.post('/signup', express.json(), validateSignUp, createUser);
+userRoutes.post('/logout', auth, logout);
 
-router.patch('/me', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-  }),
-}), updateUser);
-
-module.exports = router;
+module.exports = userRoutes;
