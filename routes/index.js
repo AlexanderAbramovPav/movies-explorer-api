@@ -15,12 +15,14 @@ const {
 
 Router.post('/signup', express.json(), validateSignUp, createUser);
 Router.post('/signin', express.json(), validateLogin, login);
-Router.get('/users/me', auth, getUser);
-Router.patch('/users/me', auth, express.json(), validateUpdate, updateUser);
-Router.post('/logout', auth, logout);
+Router.get(auth);
 
-Router.get('/movies/', auth, getMovies);
-Router.post('/movies/', auth, express.json(), validatePostMovie, createMovie);
-Router.delete('/movies/:movieId', auth, validateDeleteMovie, deleteMovieById);
+Router.get('/users/me', getUser);
+Router.patch('/users/me', express.json(), validateUpdate, updateUser);
+Router.post('/logout', logout);
+
+Router.get('/movies/', getMovies);
+Router.post('/movies/', express.json(), validatePostMovie, createMovie);
+Router.delete('/movies/:movieId', validateDeleteMovie, deleteMovieById);
 
 module.exports = Router;

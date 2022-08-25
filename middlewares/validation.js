@@ -1,40 +1,56 @@
 const { celebrate, Joi } = require('celebrate');
-
-const regWebUrl = /https?:\/\/(www\.)?[-a-zA-Z0-9]{1,256}\.[a-zA-Z0-9()]{1,256}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/;
+const validator = require('validator');
 
 const validateUpdate = celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
+    email: Joi.string().required().email().min(2),
   }),
 });
 
 const validateLogin = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
+    email: Joi.string().required().email().min(2),
+    password: Joi.string().required().min(2),
   }),
 });
 
 const validateSignUp = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
+    email: Joi.string().required().email().min(2),
+    password: Joi.string().required().min(2),
     name: Joi.string().required().min(2).max(30),
   }),
 });
 
 const validatePostMovie = celebrate({
   body: Joi.object().keys({
-    country: Joi.string().required(),
-    director: Joi.string().required(),
-    duration: Joi.number().required(),
-    year: Joi.string().required(),
-    description: Joi.string().required(),
-    image: Joi.string().required().regex(regWebUrl),
-    trailerLink: Joi.string().required().regex(regWebUrl),
-    thumbnail: Joi.string().required().regex(regWebUrl),
-    nameRU: Joi.string().required(),
-    nameEN: Joi.string().required(),
+    country: Joi.string().required().min(1),
+    director: Joi.string().required().min(1),
+    duration: Joi.number().required().min(1),
+    year: Joi.string().required().min(1),
+    description: Joi.string().required().min(1),
+    image: Joi.string().required().custom((value, helpers) => {
+      if (validator.isUrl(value)) {
+        return value;
+      }
+      return helpers.message('Поле image заполнено некорректно');
+    }),
+    trailerLink: Joi.string().required().custom((value, helpers) => {
+      if (validator.isUrl(value)) {
+        return value;
+      }
+      return helpers.message('Поле trailerLink заполнено некорректно');
+    }),
+    thumbnail: Joi.string().required().custom((value, helpers) => {
+      if (validator.isUrl(value)) {
+        return value;
+      }
+      return helpers.message('Поле thumbnail заполнено некорректно');
+    }),
+    nameRU: Joi.string().required().min(1),
+    nameEN: Joi.string().required().min(1),
+    id: Joi.number().required().min(1),
   }),
 });
 

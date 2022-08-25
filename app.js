@@ -22,6 +22,9 @@ const app = express();
 // Add helmet
 app.use(helmet());
 
+// request Logger
+app.use(requestLogger);
+
 // Apply the rate limiting middleware to all requests
 app.use(limiter);
 
@@ -33,15 +36,14 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// MongoDB connect
-mongoose.connect('mongodb://localhost:27017/movies', {
-  useNewUrlParser: true,
-}, (err) => {
-  if (err) throw err;
-});
+const { DB_URL = 'mongodb://localhost:27017/movies' } = process.env;
 
-// request Logger
-app.use(requestLogger);
+// MongoDB connect
+mongoose.connect(DB_URL, {
+  useNewUrlParser: true,
+})
+  .then(() => console.log('Connected to Database'))
+  .catch((err) => console.log(err.reason));
 
 // Main routes
 app.use(Router);

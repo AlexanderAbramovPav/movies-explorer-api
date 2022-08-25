@@ -60,7 +60,7 @@ module.exports.updateUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { name: req.body.name },
+      { name: req.body.name, email: req.body.email },
       {
         new: true,
         runValidators: true,
