@@ -15,7 +15,7 @@ const {
 
 Router.post('/signup', express.json(), validateSignUp, createUser);
 Router.post('/signin', express.json(), validateLogin, login);
-Router.get(auth);
+Router.use(auth);
 
 Router.get('/users/me', getUser);
 Router.patch('/users/me', express.json(), validateUpdate, updateUser);

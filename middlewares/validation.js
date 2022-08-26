@@ -31,26 +31,26 @@ const validatePostMovie = celebrate({
     year: Joi.string().required().min(1),
     description: Joi.string().required().min(1),
     image: Joi.string().required().custom((value, helpers) => {
-      if (validator.isUrl(value)) {
+      if (validator.isURL(value)) {
         return value;
       }
       return helpers.message('Поле image заполнено некорректно');
     }),
     trailerLink: Joi.string().required().custom((value, helpers) => {
-      if (validator.isUrl(value)) {
+      if (validator.isURL(value)) {
         return value;
       }
       return helpers.message('Поле trailerLink заполнено некорректно');
     }),
     thumbnail: Joi.string().required().custom((value, helpers) => {
-      if (validator.isUrl(value)) {
+      if (validator.isURL(value)) {
         return value;
       }
       return helpers.message('Поле thumbnail заполнено некорректно');
     }),
     nameRU: Joi.string().required().min(1),
     nameEN: Joi.string().required().min(1),
-    id: Joi.number().required().min(1),
+    movieId: Joi.number().required().min(1),
   }),
 });
 
