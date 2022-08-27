@@ -28,7 +28,7 @@ module.exports.createMovie = async (req, res, next) => {
       thumbnail,
       nameRU,
       nameEN,
-      id,
+      movieId,
     } = req.body;
     const newMovie = new Movie({
       country,
@@ -41,7 +41,7 @@ module.exports.createMovie = async (req, res, next) => {
       thumbnail,
       nameRU,
       nameEN,
-      movieId: id,
+      movieId,
       owner: req.user._id,
     });
     res.send(await newMovie.save());
