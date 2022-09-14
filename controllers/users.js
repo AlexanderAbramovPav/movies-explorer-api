@@ -99,6 +99,8 @@ module.exports.logout = async (req, res, next) => {
     res.cookie('jwt', token, {
       maxAge: 1,
       httpOnly: true,
+      sameSite: 'None',
+      secure: true,
     })
       .send({ message: 'Выход прошёл успешно!' });
   } catch (err) {
