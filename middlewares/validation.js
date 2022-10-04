@@ -34,19 +34,19 @@ const validatePostMovie = celebrate({
       if (validator.isURL(value)) {
         return value;
       }
-      return helpers.message('Поле image заполнено некорректно');
+      return helpers.message('The image field is filled in incorrectly');
     }),
     trailerLink: Joi.string().required().custom((value, helpers) => {
       if (validator.isURL(value)) {
         return value;
       }
-      return helpers.message('Поле trailerLink заполнено некорректно');
+      return helpers.message('The trailerlink field is filled in incorrectly');
     }),
     thumbnail: Joi.string().required().custom((value, helpers) => {
       if (validator.isURL(value)) {
         return value;
       }
-      return helpers.message('Поле thumbnail заполнено некорректно');
+      return helpers.message('The thumbnail field is filled in incorrectly');
     }),
     nameRU: Joi.string().required().min(1),
     nameEN: Joi.string().required().min(1),

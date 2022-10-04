@@ -50,7 +50,7 @@ app.use(Router);
 
 // 404 route
 app.use('/*', auth, (req, res, next) => {
-  next(new NotFoundError('Запрос сделан к несуществующей странице'));
+  next(new NotFoundError('The request was made to a non-existent page'));
 });
 
 // Error Logger

@@ -7,7 +7,7 @@ const ForbiddenError = require('../errors/forbidden-err');
 // GET /movies
 module.exports.getMovies = async (req, res, next) => {
   try {
-    const movies = await Movie.find({});
+    const movies = await Movie.find({ owner: req.user._id });
     res.send(movies);
   } catch (err) {
     next(err);
@@ -47,7 +47,7 @@ module.exports.createMovie = async (req, res, next) => {
     res.send(await newMovie.save());
   } catch (err) {
     if (err.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+      next(new BadRequestError('Incorrect data was transmitted when creating the card'));
     } else {
       next(err);
     }
@@ -61,16 +61,16 @@ module.exports.deleteMovieById = async (req, res, next) => {
     if (deletedMovie) {
       if (req.user._id === deletedMovie.owner._id.toString()) {
         await Movie.findByIdAndRemove(req.params.movieId);
-        res.send({ message: 'Следующие данные карточки были удалены', deletedMovie });
+        res.send({ message: 'The following card details have been deleted', deletedMovie });
       } else {
-        throw new ForbiddenError('Чужую карточку не удалить');
+        throw new ForbiddenError('You cant delete someone elses card');
       }
     } else {
-      throw new NotFoundError('Карточка не найдена');
+      throw new NotFoundError('Card not found');
     }
   } catch (err) {
     if (err.name === 'CastError') {
-      next(new BadRequestError('Передан некорректный id карточки'));
+      next(new BadRequestError('Invalid card id was transmitted'));
     } else {
       next(err);
     }
