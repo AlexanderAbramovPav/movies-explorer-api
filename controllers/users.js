@@ -23,13 +23,13 @@ module.exports.createUser = (req, res, next) => {
       name,
     }))
     .then((user) => {
-      res.send({ message: 'Регистрация прошла успешно!', _id: user._id, email: user.email });
+      res.send({ message: 'Registration was successful!', _id: user._id, email: user.email });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        next(new BadRequestError('Incorrect data was transmitted when creating a user'));
       } else if (err.code === DUPLICATE_ERROR_CODE) {
-        next(new ConflictError('Пользователь с данным email уже существует'));
+        next(new ConflictError('The user with this email already exists'));
       } else {
         next(err);
       }
@@ -50,10 +50,10 @@ module.exports.login = (req, res, next) => {
           sameSite: 'None',
           secure: true,
         })
-        .send({ message: 'Авторизация прошла успешно!' });
+        .send({ message: 'Authorization was successful!' });
     })
     .catch(() => {
-      next(new UnauthorizedError('Ошибка аутентификации'));
+      next(new UnauthorizedError('Authentication error'));
     });
 };
 
@@ -71,11 +71,11 @@ module.exports.updateUser = async (req, res, next) => {
     if (user) {
       res.send(user);
     } else {
-      throw new NotFoundError('Пользователь по указанному id не найден');
+      throw new NotFoundError('The user with the specified id was not found');
     }
   } catch (err) {
     if (err.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+      next(new BadRequestError('Incorrect data was transmitted when updating the profile'));
     } else {
       next(err);
     }
@@ -102,7 +102,7 @@ module.exports.logout = async (req, res, next) => {
       sameSite: 'None',
       secure: true,
     })
-      .send({ message: 'Выход прошёл успешно!' });
+      .send({ message: 'The log out was successful!' });
   } catch (err) {
     next(err);
   }

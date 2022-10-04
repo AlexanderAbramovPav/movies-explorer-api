@@ -21,17 +21,17 @@ const MovieSchema = new mongoose.Schema({
   image: {
     type: String,
     required: true,
-    validate: [validator.isURL, 'Введена некорректная ссылка'],
+    validate: [validator.isURL, 'Incorrect link entered'],
   },
   trailerLink: {
     type: String,
     required: true,
-    validate: [validator.isURL, 'Введена некорректная ссылка'],
+    validate: [validator.isURL, 'Incorrect link entered'],
   },
   thumbnail: {
     type: String,
     required: true,
-    validate: [validator.isURL, 'Введена некорректная ссылка'],
+    validate: [validator.isURL, 'Incorrect link entered'],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
